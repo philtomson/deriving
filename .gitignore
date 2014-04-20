@@ -13,4 +13,5 @@ syntax/common/id.ml
 setup.exe
 *.mllib
 *.mlpack
+*.mldylib
 lib/META

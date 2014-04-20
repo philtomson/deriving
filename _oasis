@@ -6,9 +6,9 @@ Synopsis:    Extension to OCaml for deriving functions from type declarations
 Authors:     Jeremy Yallop
 License:     MIT
 BuildTools:  ocamlbuild
-FilesAB:     syntax/common/id.ml.ab,
-             lib/META.ab
-Plugins: DevFiles (0.4)
+FilesAB:     syntax/common/id.ml.ab
+Plugins:     DevFiles (0.4),
+             META (0.4)
 AlphaFeatures: compiled_setup_ml
 
 Flag tc
@@ -18,52 +18,72 @@ Flag tc
 Library "deriving"
   Path            : lib
   FindlibName     : deriving
+  BuildDepends    : deriving.runtime,
+                    deriving.syntax
+
+Library "deriving_runtime"
+  Path            : lib
+  FindlibParent   : deriving
+  FindlibName     : runtime
   Modules         : Deriving_Show, Deriving_Eq, Deriving_Bounded,
                     Deriving_Enum, Deriving_monad, Deriving_Dump,
                     Deriving_Typeable, Deriving_Pickle,
                     Deriving_Functor, Deriving_Default
   InternalModules : Deriving_interned, Deriving_dynmap
   BuildDepends    : deriving.syntax
-
-Library "deriving_num"
+  
+Library "deriving_runtime_num"
   Path          : lib
-  FindlibParent : deriving
+  FindlibParent : deriving_runtime
   FindlibName   : num
   Modules       : Deriving_num
   BuildDepends  : deriving
 
+Library "deriving_syntax"
+  Path            : syntax
+  FindlibParent   : deriving
+  FindlibName     : syntax
+  BuildDepends    : deriving.syntax.common,
+                    deriving.syntax.std,
+                    deriving.syntax.classes
+  XMETAType       : syntax
+
 Library "pa_deriving_classes"
   Path          : syntax/classes
-  FindlibParent : deriving
-  FindlibName   : syntax
+  FindlibParent : deriving_syntax
+  FindlibName   : classes
   Modules       : Show_class, Dump_class, Enum_class, Bounded_class,
                   Eq_class, Typeable_class, Pickle_class,
                   Functor_class, Default_class
   BuildDepends  : deriving.syntax.std
+  XMETAType     : syntax
 
 Library "pa_deriving_common"
   Path          : syntax/common
-  FindlibParent : pa_deriving_classes
+  FindlibParent : deriving_syntax
   FindlibName   : common
   Pack          : true
   Modules       : Id, Utils, Type, Defs, Clusters, Base, Extend
   BuildDepends  : camlp4,camlp4.extend,camlp4.quotations.o,optcomp
+  XMETAType     : syntax
 
 Library "pa_deriving_std"
   Path          : syntax/std
-  FindlibParent : pa_deriving_classes
+  FindlibParent : deriving_syntax
   FindlibName   : std
   Modules       : Pa_deriving_std
   BuildDepends  : deriving.syntax.common,optcomp,camlp4.quotations.o
+  XMETAType     : syntax
 
 Library "pa_deriving_tc"
   Path          : syntax/tc
-  FindlibParent : pa_deriving_classes
+  FindlibParent : deriving_syntax
   FindlibName   : tc
   Modules       : Pa_deriving_tc
   BuildDepends  : deriving.syntax.common,type_conv
   Build$: flag(tc)
   Install$: flag(tc)
+  XMETAType     : syntax
 
 Executable test
   Path           : tests/std
